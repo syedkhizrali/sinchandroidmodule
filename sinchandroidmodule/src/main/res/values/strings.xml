@@ -1,0 +1,10 @@
+<resources>
+    <string name="incoming_call_notification_title">Incoming Voice call</string>
+    <string name="incoming_video_call_notification_title">Incoming Video call</string>
+    <string name="hint_reject">Reject</string>
+    <string name="content">image</string>
+    <string name="hint_accept">Accept</string>
+    <string name="ringing">Ringing…</string>
+    <string name="call_ended">Call Ended</string>
+    <string name="connected">Connected</string>
+</resources>

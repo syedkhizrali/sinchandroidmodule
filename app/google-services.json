@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "17108677737",
+    "project_id": "sinchapp-55d6e",
+    "storage_bucket": "sinchapp-55d6e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:17108677737:android:6f5d87fb9b37a4a7fddef8",
+        "android_client_info": {
+          "package_name": "com.sinchapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrVzmQ17OgiEHpufY5eO8gGNF9r4EuyUI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
