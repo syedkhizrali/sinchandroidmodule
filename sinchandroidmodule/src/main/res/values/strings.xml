@@ -7,4 +7,10 @@
     <string name="ringing">Ringing…</string>
     <string name="call_ended">Call Ended</string>
     <string name="connected">Connected</string>
+    <string name="pause">Pause</string>
+    <string name="fast_forward">Fast forward</string>
+    <string name="fast_rewind">Fast rewind</string>
+    <string name="minimize">Minimize</string>
+    <string name="clear">Clear</string>
+    <string name="start">Start</string>
 </resources>

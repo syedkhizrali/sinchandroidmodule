@@ -4,6 +4,7 @@ package com.sinchandroidmodule
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.PendingIntent
 import android.app.PictureInPictureParams
 import android.app.RemoteAction
 import android.content.BroadcastReceiver
@@ -16,12 +17,14 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import android.util.Rational
 import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -70,6 +73,14 @@ internal class SinchCallActivity : AppCompatActivity() {
     private var sinchClient: SinchClient? = null
     private var ongoingCall: Call? = null
     private val binding by lazy { ActivitySinchCallBinding.inflate(layoutInflater) }
+
+    private val CONTROL_TYPE_CLEAR = 1
+    private val CONTROL_TYPE_START_OR_PAUSE = 2
+
+    private val REQUEST_CLEAR = 3
+    private val REQUEST_START_OR_PAUSE = 4
+    private val ACTION_STOPWATCH_CONTROL = "stopwatch_control"
+    private val EXTRA_CONTROL_TYPE = "control_type"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -509,6 +520,100 @@ internal class SinchCallActivity : AppCompatActivity() {
     override fun onDestroy() {
         rejectCall()
         super.onDestroy()
+    }
+
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S_V2){
+            enterPictureInPictureMode(updatePictureInPictureParams())
+        }
+    }
+
+    // This is called when the activity gets into or out of the picture-in-picture mode.
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+
+    }
+
+    /**
+     * Updates the parameters of the picture-in-picture mode for this activity based on the current
+     * [started] state of the stopwatch.
+     */
+    private fun updatePictureInPictureParams(): PictureInPictureParams {
+        val actionList = listOf(
+            // "Clear" action.
+            createRemoteAction(
+                R.drawable.ic_refresh_24dp,
+                R.string.clear,
+                REQUEST_CLEAR,
+                CONTROL_TYPE_CLEAR
+            ),
+//            if (started) {
+//                // "Pause" action when the stopwatch is already started.
+//                createRemoteAction(
+//                    R.drawable.ic_pause_24dp,
+//                    R.string.pause,
+//                    REQUEST_START_OR_PAUSE,
+//                    CONTROL_TYPE_START_OR_PAUSE
+//                )
+//            } else {
+//                // "Start" action when the stopwatch is not started.
+//                createRemoteAction(
+//                    R.drawable.ic_play_arrow_24dp,
+//                    R.string.start,
+//                    REQUEST_START_OR_PAUSE,
+//                    CONTROL_TYPE_START_OR_PAUSE
+//                )
+//            }
+        )
+        val params = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PictureInPictureParams.Builder()
+                // Set action items for the picture-in-picture mode. These are the only custom controls
+                // available during the picture-in-picture mode.
+                //.setActions(actionList)
+                // Set the aspect ratio of the picture-in-picture mode.
+                .setAspectRatio(Rational(4, 9))
+                // Turn the screen into the picture-in-picture mode if it's hidden by the "Home" button.
+                .setAutoEnterEnabled(true)
+                // Disables the seamless resize. The seamless resize works great for videos where the
+                // content can be arbitrarily scaled, but you can disable this for non-video content so
+                // that the picture-in-picture mode is resized with a cross fade animation.
+                .setSeamlessResizeEnabled(false)
+                .build()
+        } else {
+            PictureInPictureParams.Builder()
+                // Set action items for the picture-in-picture mode. These are the only custom controls
+                // available during the picture-in-picture mode.
+                //.setActions(actionList)
+                .setAspectRatio(Rational(16, 9))
+                .build()
+        }
+        setPictureInPictureParams(params)
+        return params
+    }
+
+    private fun createRemoteAction(
+        @DrawableRes iconResId: Int,
+        @StringRes titleResId: Int,
+        requestCode: Int,
+        controlType: Int
+    ): RemoteAction {
+        return RemoteAction(
+            Icon.createWithResource(this, iconResId),
+            getString(titleResId),
+            getString(titleResId),
+            PendingIntent.getBroadcast(
+                this,
+                requestCode,
+                Intent(ACTION_STOPWATCH_CONTROL)
+                    .putExtra(EXTRA_CONTROL_TYPE, controlType),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        )
     }
 
 
